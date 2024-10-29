@@ -1,0 +1,5 @@
+---
+# vars file for image-project
+docker_image_name: "my_custom_image"
+docker_image_tag: "latest"
+

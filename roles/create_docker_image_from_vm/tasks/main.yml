@@ -1,0 +1,31 @@
+---
+# tasks file for image-project
+- name: Install required packages on VM
+  apt:
+    name: tar
+    state: present
+  become: yes
+
+- name: Archive the VM filesystem, excluding unnecessary directories
+  command: >
+    tar --exclude=/proc --exclude=/sys --exclude=/dev --exclude=/tmp -czf /tmp/rootfs.tar.gz /
+  become: yes
+
+- name: Install rsync on remote host
+  apt:
+    name: rsync
+    state: present
+  become: yes
+    
+- name: Fetch the large file with an increased timeout
+  fetch:
+    src: /tmp/rootfs.tar.gz
+    dest: ./rootfs.tar.gz
+    flat: yes
+  vars:
+    ansible_ssh_common_args: '-o ControlMaster=auto -o ControlPersist=30m -o ServerAliveInterval=60'
+    
+- name: Import the filesystem archive as a Docker image on the local machine
+  delegate_to: localhost
+  command: cat rootfs.tar.gz | docker import - {{ docker_image_name }}:{{ docker_image_tag }}
+

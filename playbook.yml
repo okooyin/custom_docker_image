@@ -1,0 +1,6 @@
+---
+- name: Create Docker image from VM
+  hosts: servers
+  remote_user: ubuntu  
+  roles:
+    - create_docker_image_from_vm
